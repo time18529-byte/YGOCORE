@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>YGOCORE联盟黑名单查询</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: url(Exorsister_Carpedibel.jpg) no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 0;
+        }
+        
+        .container {
+            background-color: rgba(255, 255, 255, 0.92);
+            border-radius: 16px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            width: 100%;
+            max-width: 500px;
+            padding: 30px 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        .header {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .header::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            margin: 12px auto;
+            border-radius: 2px;
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            font-size: 26px;
+            margin-bottom: 10px;
+            font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .header p {
+            color: #7f8c8d;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        
+        .search-box {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 18px;
+            transition: all 0.3s;
+            outline: none;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .search-input:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .search-button {
+            background: linear-gradient(to right, #3498db, #2980b9);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 16px 30px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+            width: 100%;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .search-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.6);
+        }
+        
+        .result {
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 25px;
+            display: none;
+            transition: all 0.4s;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .blacklisted {
+            background-color: rgba(255, 235, 238, 0.9);
+            color: #e53935;
+            display: block;
+            border-left: 5px solid #e53935;
+            text-align: left;
+        }
+        
+        .not-blacklisted {
+            background-color: rgba(232, 245, 233, 0.9);
+            color: #43a047;
+            display: block;
+            border-left: 5px solid #43a047;
+        }
+        
+        .error-message {
+            background-color: rgba(255, 243, 224, 0.9);
+            color: #f57c00;
+            display: block;
+            border-left: 5px solid #f57c00;
+            text-align: center;
+        }
+        
+        .detail-info {
+            margin-top: 15px;
+            font-size: 16px;
+            font-weight: normal;
+            line-height: 1.6;
+            color: #555;
+            text-align: left;
+            border-top: 1px dashed #ccc;
+            padding-top: 15px;
+        }
+        
+        .detail-info p {
+            margin: 8px 0;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            color: #95a5a6;
+            font-size: 14px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        
+        /* 移动端优化 */
+        @media (max-width: 480px) {
+            .container {
+                padding: 25px 20px;
+                border-radius: 14px;
+            }
+            
+            .header h1 {
+                font-size: 22px;
+            }
+            
+            .header p {
+                font-size: 15px;
+            }
+            
+            .search-input {
+                padding: 14px 18px;
+                font-size: 16px;
+            }
+            
+            .search-button {
+                padding: 14px 25px;
+                font-size: 16px;
+            }
+            
+            .result {
+                font-size: 18px;
+                padding: 18px;
+            }
+            
+            .detail-info {
+                font-size: 14px;
+            }
+        }
+        
+        /* 防止移动端缩放 */
+        input, button, select, textarea {
+            font-size: 16px !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>YGOCORE联盟黑名单查询</h1>
+            <p>请输入QQ号进行查询，验证用户是否在黑名单中</p>
+        </div>
+        
+        <div class="search-box">
+            <input type="text" class="search-input" id="searchInput" placeholder="请输入QQ号" inputmode="numeric">
+            <button class="search-button" onclick="checkBlacklist()">
+                立即查询
+            </button>
+        </div>
+        
+        <div class="result" id="result"></div>
+        
+        <div class="footer">
+            <p>© 2025 YGOCORE联盟 | 维护游戏环境</p>
+        </div>
+    </div>
+
+    <script>
+        // 黑名单数据 - 包含昵称、QQ、原因和期限
+        const blacklistData = [
+            { nickname: "米熙", qq: "957827227", reason: "恶意威胁联盟+多开马甲队+马甲+诈骗金额过万", duration: "永久" },
+            { nickname: "米熙", qq: "991392826", reason: "恶意威胁联盟+多开马甲队+马甲+诈骗金额过万", duration: "永久" },
+            { nickname: "米熙", qq: "1813167870", reason: "恶意威胁联盟+多开马甲队+马甲+诈骗金额过万", duration: "永久" },
+            { nickname: "米熙", qq: "806458626", reason: "恶意威胁联盟+多开马甲队+马甲+诈骗金额过万", duration: "永久" },
+            { nickname: "米熙", qq: "496823378", reason: "恶意威胁联盟+多开马甲队+马甲+诈骗金额过万", duration: "永久" },
+            { nickname: "米熙", qq: "738900734", reason: "恶意威胁联盟+多开马甲队+马甲+诈骗金额过万", duration: "永久" },
+            { nickname: "米熙", qq: "1092364261", reason: "恶意威胁联盟+多开马甲队+马甲+诈骗金额过万", duration: "永久" },
+            { nickname: "米熙", qq: "100174352", reason: "恶意威胁联盟+多开马甲队+马甲+诈骗金额过万", duration: "永久" },
+            { nickname: "魏思", qq: "372333688", reason: "多开马甲队自刷+马甲+扰乱秩序", duration: "永久" },
+            { nickname: "魏思", qq: "420125395", reason: "多开马甲队自刷+马甲+扰乱秩序", duration: "永久" },
+            { nickname: "魏思", qq: "2420125395", reason: "多开马甲队自刷+马甲+扰乱秩序", duration: "永久" },
+            { nickname: "天香", qq: "2571286654", reason: "多开马甲+屡次挑衅+屡教不改", duration: "永久" },
+            { nickname: "晨曦", qq: "378375551", reason: "分裂联盟+扰乱秩序+屡教不改", duration: "永久" },
+            { nickname: "诸葛钰", qq: "603340822", reason: "金额诈骗", duration: "永久" },
+            { nickname: "天空", qq: "172395092", reason: "恶意威胁、分裂联盟+扰乱秩序", duration: "永久" },
+            { nickname: "逐嵐", qq: "448593451", reason: "恶意威胁、分裂联盟+扰乱秩序", duration: "永久" },
+            { nickname: "Kirito", qq: "544316558", reason: "屡次挑衅+分裂联盟+扰乱秩序", duration: "永久" },
+            { nickname: "刹那", qq: "2647097081", reason: "诈骗金额过万", duration: "永久" },
+            { nickname: "Mami", qq: "1459486740", reason: "多次地图炮、嘲讽战队，滥用职权", duration: "永久" },
+            { nickname: "茧", qq: "1278385948", reason: "扰乱秩序+禁赛期违规+屡教不改+马甲", duration: "永久" },
+            { nickname: "茧", qq: "1508629443", reason: "扰乱秩序+禁赛期违规+屡教不改+马甲", duration: "永久" },
+            { nickname: "茧", qq: "201841930", reason: "扰乱秩序+禁赛期违规+屡教不改+马甲", duration: "永久" },
+            { nickname: "茧", qq: "941045325", reason: "扰乱秩序+禁赛期违规+屡教不改+马甲", duration: "永久" },
+            { nickname: "天子", qq: "1294557505", reason: "扰乱秩序+引战+拒不认错", duration: "永久" },
+            { nickname: "库洛", qq: "527002446", reason: "扰乱秩序+引战+拒不认错", duration: "永久" },
+            { nickname: "理", qq: "1828103943", reason: "扰乱秩序+引战+拒不认错", duration: "永久" },
+            { nickname: "鬼羊", qq: "1563844408", reason: "扰乱秩序+引战+拒不认错", duration: "永久" },
+            { nickname: "佛语", qq: "469969023", reason: "扰乱秩序+散发谣言+引战", duration: "永久" },
+            { nickname: "勇者敌寇", qq: "2296183067", reason: "涉嫌诈骗金额过万", duration: "永久" },
+            { nickname: "野草", qq: "2558875053", reason: "恶意威胁、扰乱秩序+屡教不改+马甲+兼队+违规30次以上+黑名单期间开马甲", duration: "永久" },
+            { nickname: "野草", qq: "2372472234", reason: "恶意威胁、扰乱秩序+屡教不改+马甲+兼队+违规30次以上+黑名单期间开马甲", duration: "永久" },
+            { nickname: "野草", qq: "1013801146", reason: "恶意威胁、扰乱秩序+屡教不改+马甲+兼队+违规30次以上+黑名单期间开马甲", duration: "永久" },
+            { nickname: "野草", qq: "3041195660", reason: "恶意威胁、扰乱秩序+屡教不改+马甲+兼队+违规30次以上+黑名单期间开马甲", duration: "永久" },
+            { nickname: "野草", qq: "2822358816", reason: "恶意威胁、扰乱秩序+屡教不改+马甲+兼队+违规30次以上+黑名单期间开马甲", duration: "永久" },
+            { nickname: "言叶", qq: "971974621", reason: "扰乱秩序+禁赛期违规+屡教不改", duration: "永久" },
+            { nickname: "妹红", qq: "1350539446", reason: "嘲讽战队、扰乱秩序、多次地图炮、篡改战报+屡教不改", duration: "永久" },
+            { nickname: "恶毒", qq: "3201650468", reason: "嘲讽战队、扰乱秩序、攻击联盟、屡教不改", duration: "永久" },
+            { nickname: "殷萌", qq: "2763909063", reason: "嘲讽战队、扰乱秩序、攻击联盟、屡教不改", duration: "永久" },
+            { nickname: "殷萌", qq: "2296211087", reason: "嘲讽战队、扰乱秩序、攻击联盟、屡教不改、黑名单期间开马甲", duration: "永久" },
+            { nickname: "黑暗游戏", qq: "1061248731", reason: "多次违反联盟和友谊规则，辱骂他人、扰乱秩序，屡教不改", duration: "永久" },
+            { nickname: "黑暗游戏", qq: "1369511990", reason: "多次违反联盟和友谊规则，辱骂他人、扰乱秩序，屡教不改", duration: "永久" },
+            { nickname: "黑暗游戏", qq: "2859244640", reason: "多次违反联盟和友谊规则，辱骂他人、扰乱秩序，屡教不改、金钱诈骗，黑名单期间开马甲", duration: "永久" },
+            { nickname: "黑暗游戏", qq: "2514812735", reason: "多次违反联盟和友谊规则，辱骂他人、扰乱秩序，屡教不改、金钱诈骗，黑名单期间开马甲", duration: "永久" },
+            { nickname: "黑暗游戏", qq: "2332516473", reason: "多次违反联盟和友谊规则，辱骂他人、扰乱秩序，屡教不改、金钱诈骗，黑名单期间开马甲", duration: "永久" },
+            { nickname: "黑暗游戏", qq: "783925353", reason: "多次违反联盟和友谊规则，辱骂他人、扰乱秩序，屡教不改、金钱诈骗，黑名单期间开马甲", duration: "永久" },
+            { nickname: "黑暗游戏", qq: "1737344730", reason: "多次违反联盟和友谊规则，辱骂他人、扰乱秩序，屡教不改、金钱诈骗，黑名单期间开马甲", duration: "永久" },
+            { nickname: "黑暗游戏", qq: "3132849072", reason: "多次违反联盟和友谊规则，辱骂他人、扰乱秩序，屡教不改、金钱诈骗，黑名单期间开马甲", duration: "永久" },
+            { nickname: "黑暗游戏", qq: "2964210443", reason: "多次违反联盟和友谊规则，辱骂他人、扰乱秩序，屡教不改、金钱诈骗，黑名单期间开马甲", duration: "永久" },
+            { nickname: "黑暗游戏", qq: "1444731376", reason: "多次违反联盟和友谊规则，辱骂他人、扰乱秩序，屡教不改、金钱诈骗，黑名单期间开马甲", duration: "永久" },
+            { nickname: "黑暗游戏", qq: "2811912472", reason: "多次违反联盟和友谊规则，辱骂他人、扰乱秩序，屡教不改、金钱诈骗，黑名单期间开马甲", duration: "永久" },
+            { nickname: "黑暗游戏", qq: "3480755824", reason: "多次违反联盟和友谊规则，辱骂他人、扰乱秩序，屡教不改、金钱诈骗，黑名单期间开马甲", duration: "永久" },
+            { nickname: "黑暗游戏", qq: "3457995496", reason: "多次违反联盟和友谊规则，辱骂他人、扰乱秩序，屡教不改、金钱诈骗，黑名单期间开马甲", duration: "永久" },
+            { nickname: "黑暗游戏", qq: "2715306496", reason: "多次违反联盟和友谊规则，辱骂他人、扰乱秩序，屡教不改、金钱诈骗，黑名单期间开马甲", duration: "永久" },
+            { nickname: "黑暗游戏", qq: "3191985451", reason: "多次违反联盟和友谊规则，辱骂他人、扰乱秩序，屡教不改、金钱诈骗，黑名单期间开马甲", duration: "永久" },
+            { nickname: "黑暗游戏", qq: "2669178655", reason: "多次违反联盟和友谊规则，辱骂他人、扰乱秩序，屡教不改、金钱诈骗，黑名单期间开马甲", duration: "永久" },
+            { nickname: "青鸟", qq: "2596473089", reason: "连续两年包庇黑名单成员黑暗游戏", duration: "永久" },
+            { nickname: "青鸟", qq: "1391438437", reason: "连续两年包庇黑名单成员黑暗游戏", duration: "永久" },
+            { nickname: "置间", qq: "1124081403", reason: "多次多开马甲、屡教不改", duration: "永久" },
+            { nickname: "菜电", qq: "983647348", reason: "黑名单期间开马甲，煽动他人开马甲，屡教不改", duration: "永久" },
+            { nickname: "林非凡", qq: "2773398737", reason: "涉嫌贷款诈骗（广东反诈中心已确认）", duration: "永久" },
+            { nickname: "宫水三叶", qq: "2960501400", reason: "涉嫌贷款诈骗（广东反诈中心已确认）", duration: "永久" },
+            { nickname: "囚徒", qq: "120573621", reason: "多次违反联盟和友谊规则，辱骂他人、攻击战队、攻击联盟、扰乱秩序，屡教不改", duration: "永久" }
+        ];
+
+        // 提取所有QQ号用于快速查询
+        const blacklist = blacklistData.map(item => item.qq);
+
+        function checkBlacklist() {
+            const input = document.getElementById('searchInput').value.trim();
+            const resultDiv = document.getElementById('result');
+            
+            if (!input) {
+                resultDiv.className = 'result error-message';
+                resultDiv.textContent = '请输入QQ号';
+                resultDiv.style.display = 'block';
+                return;
+            }
+            
+            // 验证输入是否为数字且至少5位数
+            if (!/^\d{5,}$/.test(input)) {
+                resultDiv.className = 'result error-message';
+                resultDiv.textContent = '请输入正确格式的QQ号';
+                resultDiv.style.display = 'block';
+                return;
+            }
+            
+            // 检查输入是否在黑名单中
+            const index = blacklist.indexOf(input);
+            if (index !== -1) {
+                const data = blacklistData[index];
+                resultDiv.className = 'result blacklisted';
+                resultDiv.innerHTML = `
+                    <div>此QQ号在黑名单中</div>
+                    <div class="detail-info">
+                        <p><strong>昵称：</strong>${data.nickname}</p>
+                        <p><strong>原因：</strong>${data.reason}</p>
+                        <p><strong>期限：</strong>${data.duration}</p>
+                    </div>
+                `;
+            } else {
+                resultDiv.className = 'result not-blacklisted';
+                resultDiv.textContent = '此QQ号不在黑名单中';
+            }
+            
+            resultDiv.style.display = 'block';
+        }
+
+        // 支持按回车键查询
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkBlacklist();
+            }
+        });
+        
+        // 自动聚焦到输入框
+        document.getElementById('searchInput').focus();
+    </script>
+</body>
+</html>
