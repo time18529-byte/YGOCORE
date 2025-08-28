@@ -225,7 +225,7 @@
     <div class="container">
         <div class="header">
             <h1>YGOCORE联盟黑名单查询</h1>
-            <p>请输入QQ号进行查询，验证用户是否在黑名单中</p>
+            <p>请输入QQ号进行查询，验证此人是否在黑名单中</p>
         </div>
         
         <div class="search-box">
@@ -337,7 +337,7 @@
                 const data = blacklistData[index];
                 resultDiv.className = 'result blacklisted';
                 resultDiv.innerHTML = `
-                    <div>此QQ号在黑名单中</div>
+                    <div>此人在黑名单中</div>
                     <div class="detail-info">
                         <p><strong>昵称：</strong>${data.nickname}</p>
                         <p><strong>原因：</strong>${data.reason}</p>
@@ -346,7 +346,7 @@
                 `;
             } else {
                 resultDiv.className = 'result not-blacklisted';
-                resultDiv.textContent = '此QQ号不在黑名单中';
+                resultDiv.textContent = '此人不在黑名单中';
             }
             
             resultDiv.style.display = 'block';
@@ -363,4 +363,5 @@
         document.getElementById('searchInput').focus();
     </script>
 </body>
+
 </html>
